@@ -1,40 +1,35 @@
 import React, { useState } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Train, Car, Clock, Users, CreditCard } from 'lucide-react';
+import { Train, Car, Clock, Users } from 'lucide-react';
 import { Transport } from '../../types/transport';
-import { BookingModal } from '../booking/BookingModal';
+import { TransportBookingModal } from './booking/TransportBookingModal';
+import { formatCurrency } from '../../utils/currency';
 
 interface TransportCardProps {
   transport: Transport;
-  onBook: (transportId: string) => void;
 }
 
-export const TransportCard: React.FC<TransportCardProps> = ({
-  transport,
-  onBook
-}) => {
+export const TransportCard: React.FC<TransportCardProps> = ({ transport }) => {
   const [showBooking, setShowBooking] = useState(false);
   const Icon = transport.type === 'train' ? Train : Car;
 
-  const handleBooking = (bookingDetails: any) => {
-    onBook(transport.id);
-    setShowBooking(false);
-    console.log('Booking details:', bookingDetails);
-  };
-
   return (
     <>
-      <Card className="p-4">
+      <Card className="p-4 hover:shadow-lg transition-shadow">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <Icon className="w-6 h-6 text-teal-600" />
+            <div className={`p-2 rounded-lg ${transport.type === 'train' ? 'bg-blue-50' : 'bg-green-50'}`}>
+              <Icon className={`w-6 h-6 ${transport.type === 'train' ? 'text-blue-600' : 'text-green-600'}`} />
+            </div>
             <div>
               <h3 className="font-semibold text-gray-900">{transport.name}</h3>
               <p className="text-sm text-gray-500 capitalize">{transport.type}</p>
             </div>
           </div>
-          <span className="text-lg font-bold text-teal-600">${transport.price}</span>
+          <span className="text-lg font-bold text-teal-600">
+            {formatCurrency(transport.price)}
+          </span>
         </div>
 
         {transport.type === 'train' && (
@@ -57,8 +52,8 @@ export const TransportCard: React.FC<TransportCardProps> = ({
 
         {transport.type === 'cab' && (
           <div className="mb-4">
-            <p className="text-sm text-gray-600">{transport.route}</p>
-            <div className="flex items-center mt-2">
+            <p className="text-sm text-gray-600 mb-2">{transport.route}</p>
+            <div className="flex items-center">
               <Users className="w-4 h-4 text-gray-400 mr-2" />
               <span className="text-sm text-gray-600">
                 {transport.seatingCapacity} seats
@@ -77,11 +72,9 @@ export const TransportCard: React.FC<TransportCardProps> = ({
       </Card>
 
       {showBooking && (
-        <BookingModal
-          title={`Book ${transport.type === 'train' ? 'Train' : 'Cab'} - ${transport.name}`}
-          price={transport.price}
+        <TransportBookingModal
+          transport={transport}
           onClose={() => setShowBooking(false)}
-          onConfirm={handleBooking}
         />
       )}
     </>

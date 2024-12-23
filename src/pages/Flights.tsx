@@ -1,32 +1,16 @@
 import React, { useState } from 'react';
-import { SearchBar } from '../components/search/SearchBar';
-import { FlightCard } from '../components/flights/FlightCard';
+import { FlightFilter } from '../components/flights/FlightFilter';
+import { FlightDetails } from '../components/flights/FlightDetails';
 import { MapView } from '../components/common/MapView';
 import { flights } from '../data/flights';
-
-const flightCoordinates: Record<string, [number, number]> = {
-  'Mumbai': [19.0760, 72.8777],
-  'Delhi': [28.6139, 77.2090],
-  'Bangalore': [12.9716, 77.5946],
-  'Chennai': [13.0827, 80.2707],
-  'Kolkata': [22.5726, 88.3639],
-  'Hyderabad': [17.3850, 78.4867],
-  'Goa': [15.2993, 73.9840],
-  'Jaipur': [26.9124, 75.7873]
-};
+import { flightCoordinates } from '../utils/map';
 
 export const Flights: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState<'all' | 'indian' | 'international'>('all');
   const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const filteredFlights = flights.filter(flight =>
-    flight.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    flight.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    flight.airline.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredFlights = flights.filter(flight => 
+    selectedType === 'all' ? true : flight.type === selectedType
   );
 
   const getMapMarkers = () => {
@@ -43,7 +27,7 @@ export const Flights: React.FC = () => {
       }
     ]);
 
-    return allMarkers.filter(marker => marker.position); // Filter out undefined positions
+    return allMarkers.filter(marker => marker.position);
   };
 
   const getFlightPath = () => {
@@ -66,7 +50,10 @@ export const Flights: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Available Flights
           </h1>
-          <SearchBar onSearch={handleSearch} />
+          <FlightFilter
+            selectedType={selectedType}
+            onTypeChange={setSelectedType}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -76,17 +63,16 @@ export const Flights: React.FC = () => {
                 markers={getMapMarkers()}
                 flightPath={getFlightPath()}
                 center={[20.5937, 78.9629]}
-                zoom={4}
+                zoom={selectedType === 'international' ? 2 : 4}
                 className="h-[400px] rounded-lg"
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
               {filteredFlights.map((flight) => (
-                <FlightCard
+                <FlightDetails
                   key={flight.id}
-                  flight={flight}
-                  onBook={() => setSelectedFlight(flight.id)}
-                  isSelected={selectedFlight === flight.id}
+                  {...flight}
+                  onClick={() => setSelectedFlight(flight.id)}
                 />
               ))}
             </div>
@@ -104,13 +90,25 @@ export const Flights: React.FC = () => {
                     </p>
                   </div>
                   {filteredFlights.length > 0 && (
-                    <div>
-                      <p className="text-sm text-gray-600">Price Range</p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        ${Math.min(...filteredFlights.map(f => f.price))} - 
-                        ${Math.max(...filteredFlights.map(f => f.price))}
-                      </p>
-                    </div>
+                    <>
+                      <div>
+                        <p className="text-sm text-gray-600">Price Range</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          ₹{Math.min(...filteredFlights.map(f => f.price))} - 
+                          ₹{Math.max(...filteredFlights.map(f => f.price))}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Available Routes</p>
+                        <div className="mt-2 space-y-2">
+                          {Array.from(new Set(filteredFlights.map(f => `${f.origin} - ${f.destination}`))).map(route => (
+                            <div key={route} className="text-sm bg-gray-50 p-2 rounded">
+                              {route}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -120,4 +118,4 @@ export const Flights: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

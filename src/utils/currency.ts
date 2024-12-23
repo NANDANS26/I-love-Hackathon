@@ -1,6 +1,10 @@
-export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
+export const formatCurrency = (amount: number, currency: string = 'INR'): string => {
+  if (isNaN(amount)) return '₹0';
+  
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(amount);
 };

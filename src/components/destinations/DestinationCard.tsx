@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Leaf } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Rating } from '../ui/Rating';
 import { FavoriteButton } from '../favorites/FavoriteButton';
 import { CompareButton } from '../compare/CompareButton';
-import { BookingModal } from '../booking/BookingModal';
+import { DestinationBookingModal } from '../booking/DestinationBookingModal';
 import { Button } from '../ui/Button';
 import { Destination } from '../../types';
 import { useFavorites } from '../../hooks/useFavorites';
+import { ImageWithFallback } from '../common/ImageWithFallback';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -21,37 +22,47 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
   onCompareToggle,
   isInComparison = false
 }) => {
+  const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites('destinations');
   const [showBooking, setShowBooking] = useState(false);
 
-  const handleBooking = (bookingDetails: any) => {
-    console.log('Booking details:', bookingDetails);
-    setShowBooking(false);
+  const handleViewDetails = () => {
+    navigate(`/destination/${destination.id}`);
   };
 
   const handleBookClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+    e.stopPropagation();
     setShowBooking(true);
   };
 
   return (
     <>
-      <Card className="overflow-hidden h-full flex flex-col">
+      <Card 
+        className="overflow-hidden h-full flex flex-col cursor-pointer"
+        onClick={handleViewDetails}
+      >
         <div className="relative h-48">
-          <img
+          <ImageWithFallback
             src={destination.image}
             alt={destination.name}
-            className="w-full h-full object-cover"
+            type="destination"
+            className="w-full h-full"
           />
           <div className="absolute top-4 right-4 flex space-x-2">
             <FavoriteButton
               isFavorite={isFavorite(destination.id)}
-              onToggle={() => toggleFavorite(destination.id)}
+              onToggle={(e) => {
+                e.stopPropagation();
+                toggleFavorite(destination.id);
+              }}
             />
             {onCompareToggle && (
               <CompareButton
                 isSelected={isInComparison}
-                onToggle={() => onCompareToggle(destination.id)}
+                onToggle={(e) => {
+                  e.stopPropagation();
+                  onCompareToggle(destination.id);
+                }}
               />
             )}
           </div>
@@ -70,23 +81,35 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
           </p>
           <div className="mt-auto">
             <Rating value={destination.rating} className="mb-3" />
-            <Button
-              variant="primary"
-              className="w-full"
-              onClick={handleBookClick}
-            >
-              Book Now
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                onClick={handleViewDetails}
+                className="w-full"
+              >
+                View Details
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleBookClick}
+                className="w-full"
+              >
+                Book Now
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
 
       {showBooking && (
-        <BookingModal
-          title={`Book Trip to ${destination.name}`}
-          price={destination.entryFee?.foreign || 100}
+        <DestinationBookingModal
+          destination={{
+            id: destination.id,
+            name: destination.name,
+            image: destination.image,
+            entryFee: destination.entryFee
+          }}
           onClose={() => setShowBooking(false)}
-          onConfirm={handleBooking}
         />
       )}
     </>

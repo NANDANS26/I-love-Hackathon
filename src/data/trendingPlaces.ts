@@ -17,7 +17,7 @@ export const trendingPlaces: TrendingPlace[] = [
     id: 'trend-2',
     name: 'Hampi',
     description: 'Ancient ruins and boulder-strewn landscape.',
-    image: 'https://images.unsplash.com/photo-1600100397608-f010a8ff618e',
+    image: 'https://plus.unsplash.com/premium_photo-1697729472950-e041cd81b72f?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     rating: 4.7,
     trending: {
       rank: 2,

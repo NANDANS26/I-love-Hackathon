@@ -30,11 +30,10 @@ const features = [
 export const Hero: React.FC = () => {
   return (
     <div className="relative min-h-screen flex items-center">
-      {/* Background with overlay */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 via-gray-900/90 to-gray-900/80" />
         <img
-          src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba"
+          src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&fit=crop&w=2000&q=80"
           alt="Hero background"
           className="w-full h-full object-cover"
         />

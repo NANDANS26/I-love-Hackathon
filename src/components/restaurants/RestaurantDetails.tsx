@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 import { Rating } from '../ui/Rating';
+import { Button } from '../ui/Button';
 import {
   Clock,
   MapPin,
@@ -19,10 +20,12 @@ import { MapView } from '../common/MapView';
 
 interface RestaurantDetailsProps {
   restaurant: Restaurant;
+  onBookNow: () => void;
 }
 
 export const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({
-  restaurant
+  restaurant,
+  onBookNow
 }) => {
   return (
     <motion.div
@@ -126,10 +129,12 @@ export const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-gray-400" />
-                <p className="text-gray-600">{restaurant.contact?.phone}</p>
-              </div>
+              {restaurant.contact?.phone && (
+                <div className="flex items-center space-x-3">
+                  <Phone className="w-5 h-5 text-gray-400" />
+                  <p className="text-gray-600">{restaurant.contact.phone}</p>
+                </div>
+              )}
 
               {restaurant.contact?.website && (
                 <div className="flex items-center space-x-3">
@@ -162,11 +167,24 @@ export const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({
 
             <div className="mt-6">
               <MapView
-                latitude={restaurant.location.coordinates.lat}
-                longitude={restaurant.location.coordinates.lng}
-                name={restaurant.name}
+                markers={[{
+                  position: [restaurant.location.coordinates.lat, restaurant.location.coordinates.lng],
+                  title: restaurant.name,
+                  type: 'restaurant'
+                }]}
+                center={[restaurant.location.coordinates.lat, restaurant.location.coordinates.lng]}
+                zoom={15}
+                className="h-[200px] rounded-lg mb-6"
               />
             </div>
+
+            <Button 
+              variant="primary" 
+              className="w-full"
+              onClick={onBookNow}
+            >
+              Book a Table
+            </Button>
           </Card>
         </div>
       </div>

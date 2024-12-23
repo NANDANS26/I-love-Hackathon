@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Plane, Clock } from 'lucide-react';
+import { Plane, Clock, Users, Globe } from 'lucide-react';
 import { Flight } from '../../types/transport';
 import { BookingModal } from '../booking/BookingModal';
+import { formatCurrency } from '../../utils/currency';
 
 interface FlightCardProps {
   flight: Flight;
@@ -18,25 +19,28 @@ export const FlightCard: React.FC<FlightCardProps> = ({
 }) => {
   const [showBooking, setShowBooking] = useState(false);
 
-  const handleBooking = (bookingDetails: any) => {
-    onBook(flight.id);
-    setShowBooking(false);
-    // Handle booking confirmation
-    console.log('Booking details:', bookingDetails);
-  };
+  const isInternational = flight.type === 'international';
 
   return (
     <>
       <Card className={`p-4 ${isSelected ? 'ring-2 ring-teal-500' : ''}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <Plane className="w-6 h-6 text-teal-600" />
+            <div className={`p-2 rounded-lg ${isInternational ? 'bg-purple-50' : 'bg-teal-50'}`}>
+              {isInternational ? (
+                <Globe className={`w-6 h-6 ${isInternational ? 'text-purple-600' : 'text-teal-600'}`} />
+              ) : (
+                <Plane className="w-6 h-6 text-teal-600" />
+              )}
+            </div>
             <div>
               <h3 className="font-semibold text-gray-900">{flight.airline}</h3>
               <p className="text-sm text-gray-500">{flight.flightNumber}</p>
             </div>
           </div>
-          <span className="text-lg font-bold text-teal-600">${flight.price}</span>
+          <span className="text-lg font-bold text-teal-600">
+            {formatCurrency(flight.price)}
+          </span>
         </div>
 
         <div className="flex justify-between items-center mb-4">
@@ -56,11 +60,13 @@ export const FlightCard: React.FC<FlightCardProps> = ({
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <div className="text-sm text-gray-600">
-            Class: {flight.class}
+          <div className="flex items-center text-gray-600">
+            <Users className="w-4 h-4 mr-1" />
+            <span>{flight.availableSeats} seats left</span>
           </div>
-          <div className="text-sm text-gray-600">
-            {flight.availableSeats} seats left
+          <div className="flex items-center text-gray-600">
+            <Clock className="w-4 h-4 mr-1" />
+            <span>{flight.class}</span>
           </div>
         </div>
 
@@ -76,9 +82,25 @@ export const FlightCard: React.FC<FlightCardProps> = ({
       {showBooking && (
         <BookingModal
           title={`Book Flight - ${flight.airline} ${flight.flightNumber}`}
-          price={flight.price}
-          onClose={() => setShowBooking(false)}
-          onConfirm={handleBooking}
+          type="flight"
+          itemDetails={{
+            id: flight.id,
+            name: `${flight.airline} ${flight.flightNumber}`,
+            image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05',
+            price: flight.price,
+            type: 'flight',
+            airline: flight.airline,
+            flightNumber: flight.flightNumber,
+            origin: flight.origin,
+            destination: flight.destination,
+            departureTime: flight.departureTime,
+            arrivalTime: flight.arrivalTime,
+            class: flight.class
+          }}
+          onClose={() => {
+            setShowBooking(false);
+            onBook(flight.id);
+          }}
         />
       )}
     </>

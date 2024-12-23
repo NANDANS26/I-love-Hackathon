@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CountrySelector } from '../components/destinations/CountrySelector';
 import { TouristPlaceList } from '../components/destinations/TouristPlaceList';
 import { MapView } from '../components/common/MapView';
@@ -6,22 +7,44 @@ import { countries } from '../data/countries';
 import { DestinationState } from '../types/destinations';
 
 export const Destinations: React.FC = () => {
+  const navigate = useNavigate();
   const [state, setState] = useState<DestinationState>({
     selectedCountry: null,
     selectedPlace: null
   });
 
-  const selectedCountry = countries.filter(c => c.id === state.selectedCountry)[0];
+  const selectedCountry = countries.find(c => c.id === state.selectedCountry);
+
+  // Update map center when country changes
+  const getMapCenter = () => {
+    if (selectedCountry && selectedCountry.touristPlaces.length > 0) {
+      const firstPlace = selectedCountry.touristPlaces[0];
+      return [
+        firstPlace.location.coordinates.lat,
+        firstPlace.location.coordinates.lng
+      ] as [number, number];
+    }
+    return [20.5937, 78.9629] as [number, number]; // Default center
+  };
 
   const getMapMarkers = () => {
     if (selectedCountry) {
       return selectedCountry.touristPlaces.map(place => ({
-        position: [place.location.coordinates.lat, place.location.coordinates.lng] as [number, number],
+        position: [
+          place.location.coordinates.lat,
+          place.location.coordinates.lng
+        ] as [number, number],
         title: place.name,
         type: 'destination' as const
       }));
     }
     return [];
+  };
+
+  const handlePlaceSelect = (placeId: string) => {
+    if (selectedCountry) {
+      navigate(`/destinations/${selectedCountry.id}/${placeId}`);
+    }
   };
 
   return (
@@ -39,7 +62,7 @@ export const Destinations: React.FC = () => {
         <CountrySelector
           countries={countries}
           selectedCountry={state.selectedCountry}
-          onSelect={(countryId) => setState({ ...state, selectedCountry: countryId })}
+          onSelect={(countryId) => setState({ selectedCountry: countryId, selectedPlace: null })}
         />
 
         {selectedCountry && (
@@ -55,27 +78,27 @@ export const Destinations: React.FC = () => {
               <div className="lg:col-span-2">
                 <MapView
                   markers={getMapMarkers()}
-                  center={selectedCountry.touristPlaces[0]?.location.coordinates 
-                    ? [selectedCountry.touristPlaces[0].location.coordinates.lat, selectedCountry.touristPlaces[0].location.coordinates.lng]
-                    : [20.5937, 78.9629]}
+                  center={getMapCenter()}
                   zoom={6}
                   className="h-[400px] rounded-lg"
                 />
               </div>
               <div className="lg:col-span-1">
                 <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <h3 className="text-lg font-semibold mb-4">Country Info</h3>
+                  <h3 className="text-lg font-semibold mb-4">Popular Places</h3>
                   <div className="space-y-3">
-                    <p className="text-sm text-gray-600">
-                      Places to Visit: {selectedCountry.touristPlaces.length}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedCountry.touristPlaces.map(place => (
-                        <span key={place.id} className="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-sm">
-                          {place.name}
-                        </span>
-                      ))}
-                    </div>
+                    {selectedCountry.touristPlaces.map(place => (
+                      <button
+                        key={place.id}
+                        onClick={() => handlePlaceSelect(place.id)}
+                        className="w-full text-left p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        <p className="font-medium text-gray-900">{place.name}</p>
+                        <p className="text-sm text-gray-500 truncate">
+                          {place.description}
+                        </p>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -83,7 +106,7 @@ export const Destinations: React.FC = () => {
 
             <TouristPlaceList
               places={selectedCountry.touristPlaces}
-              onSelect={(placeId) => setState({ ...state, selectedPlace: placeId })}
+              onSelect={handlePlaceSelect}
             />
           </div>
         )}

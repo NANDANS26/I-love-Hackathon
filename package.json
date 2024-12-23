@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.18",
     "@radix-ui/react-slider": "^1.2.2",
     "@radix-ui/react-tooltip": "^1.1.5",
     "@types/leaflet": "^1.9.15",

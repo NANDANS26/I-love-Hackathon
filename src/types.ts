@@ -51,3 +51,16 @@ export interface Flight {
   class: string;
   availableSeats: number;
 }
+
+export type TrendingPlace = {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  rating: number;
+  trending: {
+    rank: number;
+    searchVolume: number;
+    growthRate: number;
+  };
+};

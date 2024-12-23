@@ -1,5 +1,7 @@
 import React from 'react';
 import { Transport } from '../../types/transport';
+import { Card } from '../ui/Card';
+import { formatCurrency } from '../../utils/currency';
 
 interface TransportStatsProps {
   transports: Transport[];
@@ -15,34 +17,42 @@ export const TransportStats: React.FC<TransportStatsProps> = ({ transports }) =>
     };
   };
 
+  const getAvailableRoutes = () => {
+    return Array.from(new Set(transports.map(t => t.route)));
+  };
+
   const priceRange = getPriceRange();
+  const routes = getAvailableRoutes();
 
   return (
-    <div className="sticky top-24">
-      <div className="bg-white rounded-lg p-4 shadow-sm">
-        <h2 className="text-lg font-semibold mb-4">Transport Options</h2>
-        <div className="space-y-4">
+    <Card className="p-6 sticky top-24">
+      <h2 className="text-lg font-semibold mb-4">Quick Stats</h2>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-medium text-gray-600 mb-2">Available Options</h3>
+          <p className="text-2xl font-bold text-gray-900">{transports.length}</p>
+        </div>
+
+        {priceRange && (
           <div>
-            <p className="text-sm text-gray-600">Available Types</p>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <span className="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-sm">
-                Train
-              </span>
-              <span className="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-sm">
-                Cab
-              </span>
-            </div>
+            <h3 className="text-sm font-medium text-gray-600 mb-2">Price Range</h3>
+            <p className="text-2xl font-bold text-gray-900">
+              {formatCurrency(priceRange.min)} - {formatCurrency(priceRange.max)}
+            </p>
           </div>
-          {priceRange && (
-            <div>
-              <p className="text-sm text-gray-600">Price Range</p>
-              <p className="text-2xl font-bold text-gray-900">
-                ${priceRange.min} - ${priceRange.max}
-              </p>
-            </div>
-          )}
+        )}
+
+        <div>
+          <h3 className="text-sm font-medium text-gray-600 mb-2">Popular Routes</h3>
+          <div className="space-y-2">
+            {routes.map((route) => (
+              <div key={route} className="p-2 bg-gray-50 rounded-lg text-sm text-gray-700">
+                {route}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };

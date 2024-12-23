@@ -47,12 +47,6 @@ export const Header: React.FC = () => {
             >
               Restaurants
             </Link>
-            <Link
-              to="/indian-destinations"
-              className="text-gray-700 dark:text-gray-200 hover:text-teal-600 dark:hover:text-teal-400"
-            >
-              India
-            </Link>
           </nav>
 
           <div className="flex items-center space-x-4">

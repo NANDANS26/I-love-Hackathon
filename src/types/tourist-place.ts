@@ -19,4 +19,19 @@ export interface TouristPlace {
     min: number;
     max: number;
   };
+  openingHours?: {
+    weekdays: string;
+    weekends: string;
+    holidays?: string;
+  };
+  accessibility?: {
+    wheelchairAccessible: boolean;
+    publicTransport: boolean;
+    parking: boolean;
+  };
+  guidedTours?: {
+    available: boolean;
+    languages: string[];
+    duration: string;
+  };
 }
